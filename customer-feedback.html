@@ -1,0 +1,29 @@
+<!-- customer-feedback.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Feedback</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Customer Feedback</h1>
+</header>
+
+<form onsubmit="return reviewSuccess()">
+    <input type="text" placeholder="Your Name" required>
+    <input type="text" placeholder="Vendor Name" required>
+    <textarea placeholder="Your Experience" required></textarea>
+    <button type="submit">Submit Review</button>
+</form>
+
+<script>
+function reviewSuccess(){
+    window.location.href = "review-success.html";
+    return false;
+}
+</script>
+
+</body>
+</html>

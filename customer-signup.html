@@ -1,0 +1,29 @@
+<!-- customer-signup.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Signup</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body>
+
+<form onsubmit="return customerSignup()">
+    <h2>Customer Registration</h2>
+
+    <input type="text" placeholder="Full Name" required>
+    <input type="email" placeholder="Email Address" required>
+    <input type="text" placeholder="Phone Number" required>
+    <input type="password" placeholder="Create Password" required>
+    <input type="password" placeholder="Confirm Password" required>
+
+    <button type="submit">Create Customer Account</button>
+
+    <p style="text-align:center;margin-top:15px;">
+        Already have an account?
+        <a href="customer-login.html">Login</a>
+    </p>
+</form>
+
+</body>
+</html>

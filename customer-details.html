@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Details</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Customer Information</h1>
+</header>
+
+<form id="bookingForm">
+    <h2>Enter Your Details</h2>
+
+    <input type="text" placeholder="Full Name" required>
+    <input type="email" placeholder="Email Address" required>
+    <input type="text" placeholder="Phone Number" required>
+
+    <button type="submit">Confirm Booking</button>
+</form>
+
+<script>
+document.getElementById("bookingForm").addEventListener("submit", function(e){
+    e.preventDefault();   // STOP page refresh
+    window.location.href = "booking-successful.html";
+});
+</script>
+
+</body>
+</html>
