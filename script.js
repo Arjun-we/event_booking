@@ -34,6 +34,13 @@ function sendMessage() {
     if (msg === "") return;
 
     var chat = document.getElementById("chat-body");
+    // WHEN PRESS ENTER → SEND MESSAGE
+document.getElementById("userMessage").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();        // stop newline
+        sendMessage();             // call your function
+    }
+});
 
     // User message
     var userDiv = document.createElement("div");

@@ -1,7 +1,11 @@
 function sendMessage(){
+
+    
+
     const input = document.getElementById("userMessage");
     const message = input.value.trim();
     if(message === "") return;
+        
 
     const chat = document.getElementById("chat-body");
 
@@ -32,3 +36,13 @@ function sendMessage(){
         chat.scrollTop = chat.scrollHeight;
     });
 }
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("userMessage");
+
+    input.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+});
