@@ -1,0 +1,22 @@
+VENDORS = [
+    {"name":"Royal Palace","category":"Venue","cost":300000,"capacity":1000,
+     "description":"Luxury wedding venue with AC halls, valet parking, bridal suites, premium ambience"},
+    {"name":"Emerald Convention","category":"Venue","cost":220000,"capacity":600,
+     "description":"Mid-range convention hall ideal for weddings and corporate events"},
+    {"name":"Grand Caterers","category":"Catering","cost":150000,"capacity":1000,
+     "description":"Premium multi-cuisine catering with live counters and custom menus"},
+    {"name":"Tasty Treats","category":"Catering","cost":90000,"capacity":500,
+     "description":"Budget-friendly catering for small and medium events"},
+    {"name":"Bloom & Glow","category":"Decoration","cost":60000,"capacity":1000,
+     "description":"Floral decorations, theme-based stage setup, premium lighting"},
+    {"name":"Dream Decor","category":"Decoration","cost":40000,"capacity":500,
+     "description":"Affordable decoration services with modern designs"},
+    {"name":"SnapMagic Studio","category":"Photography","cost":50000,"capacity":1000,
+     "description":"Candid photography, cinematic videos, drone coverage"},
+    {"name":"Pixel Frames","category":"Photography","cost":30000,"capacity":500,
+     "description":"Budget photography and videography services"},
+    {"name":"Sound Waves DJ","category":"Entertainment","cost":40000,"capacity":800,
+     "description":"DJ, sound systems, intelligent lighting"},
+    {"name":"Elite Security","category":"Security","cost":30000,"capacity":1000,
+     "description":"Professional bouncers, valet parking, event security"}
+]

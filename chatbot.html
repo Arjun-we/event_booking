@@ -1,32 +1,35 @@
-<!-- chatbot.html (UPDATED – bigger input, stacked layout, dynamic chat) -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>EventBot Chat</title>
+    <title>EventBot – AI Planner</title>
     <link rel="stylesheet" href="style.css">
     <script src="chatbot.js"></script>
 </head>
 <body>
 
 <header>
-    <h1>🤖 EventBot Assistant</h1>
+    <h1>🤖 EventBot – AI Event Planner</h1>
 </header>
 
 <div class="card" style="max-width:700px;margin:40px auto;">
-    
+
     <div id="chat-body">
-        <div class="bot">Hi 👋 I’m EventBot. Ask me anything about vendors, bookings, or feedback.</div>
+        <div class="bot">
+            Hi 👋 I’m EventBot.  
+            Ask me to plan your event based on budget and guests.
+        </div>
     </div>
 
-    <!-- INPUT AREA (STACKED & LARGE) -->
     <div id="chat-input">
-        <textarea id="userMessage" rows="3" placeholder="Type your message here..."></textarea>
-        <button onclick="sendMessage()">Send Message</button>
+        <textarea id="userMessage" rows="3"
+            placeholder="Example: Plan a wedding with 5 lakh budget for 400 guests"></textarea>
+        <button onclick="sendMessage()">Send</button>
     </div>
 
     <button onclick="history.back()" style="margin-top:15px;background:#0FB9B1;">
         ⬅ Back
     </button>
+
 </div>
 
 </body>
