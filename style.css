@@ -123,6 +123,8 @@ footer{
     border-radius:10px;
     border:1px solid #ddd;
     margin-bottom:15px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Messages */
@@ -137,23 +139,25 @@ footer{
     font-size:14px;
 }
 
-.user{
-    background:#FC5C65;
-    color:white;
-    padding:12px;
-    margin-bottom:10px;
-    border-radius:10px;
-    max-width:75%;
-    margin-right:0;
-    margin-left:auto;
+.user {
+    background: #FC5C65;
+    color: white;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    max-width: 75%;
 
-    text-align:right;
-    font-size:14px;
-     
-     white-space: normal;
-    overflow-wrap:anywhere;
-    display:inline-block;
-    word-break: break-all;
+    margin-left: auto;   
+    margin-right: 0;
+
+    text-align: left;
+    font-size: 14px;
+
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    display: inline-block;
 }
 
 /* Input section */
