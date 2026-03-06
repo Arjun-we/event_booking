@@ -1,4 +1,70 @@
-.env
+# ==============================
+# Python cache & compiled files
+# ==============================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# ==============================
+# Virtual Environment
+# ==============================
 venv/
+env/
+ENV/
+.venv/
+
+# ==============================
+# Environment variables
+# ==============================
+.env
+.env.*
+
+# ==============================
+# Flask instance folder
+# ==============================
+instance/
+
+# ==============================
+# Database files (if using local DB)
+# ==============================
+*.db
+*.sqlite3
+
+# ==============================
+# Logs
+# ==============================
+*.log
+logs/
+
+# ==============================
+# OS generated files
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
+# IDE / Editor files
+# ==============================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ==============================
+# Build / distribution
+# ==============================
+build/
+dist/
+*.egg-info/
+
+# ==============================
+# Testing & coverage
+# ==============================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# ==============================
+# Node (if ever added later)
+# ==============================
+node_modules/

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Vendor Dashboard | Event Planner{% endblock %}
+{% block content %}
+
+<div style="padding:30px 40px 0; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2 style="color:#FC5C65;">🏪 Vendor Management Portal</h2>
+        <p style="color:#666;">Welcome, {{ session.get('name', 'Vendor') }}</p>
+    </div>
+    <a href="{{ url_for('vendor_profile_edit') }}">
+        <button style="width:auto; padding:10px 25px;">Update Profile</button>
+    </a>
+</div>
+
+{% if not vendor %}
+<div class="alert alert-warning" style="margin:20px 40px;">
+    ⚠️ Your profile is incomplete.
+    <a href="{{ url_for('vendor_profile_edit') }}" style="color:#856404; font-weight:bold;">
+        Complete it now
+    </a>
+    to start receiving bookings.
+</div>
+{% else %}
+
+<!-- Stats -->
+<section style="padding:20px 40px; display:flex; gap:20px; flex-wrap:wrap;">
+    <div style="text-align:center; background:white; padding:20px; border-radius:10px;">
+        <h2 style="color:#FC5C65;">₹{{ "{:,.0f}".format(stats.revenue) if stats else 0 }}</h2>
+        <p>Total Revenue</p>
+    </div>
+    <div style="text-align:center; background:white; padding:20px; border-radius:10px;">
+        <h2 style="color:#FC5C65;">{{ stats.total if stats else 0 }}</h2>
+        <p>Total Bookings</p>
+    </div>
+    <div style="text-align:center; background:white; padding:20px; border-radius:10px;">
+        <h2 style="color:#FC5C65;">{{ stats.pending if stats else 0 }}</h2>
+        <p>Pending</p>
+    </div>
+    <div style="text-align:center; background:white; padding:20px; border-radius:10px;">
+        <h2 style="color:#FC5C65;">⭐ {{ vendor.rating or 0 }}</h2>
+        <p>Average Rating</p>
+    </div>
+</section>
+
+<!-- Profile Summary -->
+<div style="margin:0 40px 20px; background:white; border-radius:12px; padding:20px;">
+    <h3 style="color:#0FB9B1; margin-bottom:10px;">📋 Profile Overview</h3>
+    <p>
+        <strong>Category:</strong> {{ vendor.category }} |
+        <strong>Location:</strong> {{ vendor.location }} |
+        <strong>Price:</strong> ₹{{ "{:,.0f}".format(vendor.price) }}/event
+    </p>
+    <p style="color:#666; margin-top:8px;">{{ vendor.description }}</p>
+</div>
+
+<!-- Bookings Table -->
+<div style="padding:0 40px 40px;">
+    <h3 style="color:#FC5C65; margin-bottom:15px;">📅 Incoming Bookings</h3>
+
+    {% if bookings %}
+    <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; background:white;">
+            <thead>
+                <tr style="background:#f5f5f5;">
+                    <th style="padding:10px;">Customer</th>
+                    <th style="padding:10px;">Event Date</th>
+                    <th style="padding:10px;">Amount</th>
+                    <th style="padding:10px;">Status</th>
+                    <th style="padding:10px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:10px;">
+                        <strong>{{ b.customer.name if b.customer else "Customer" }}</strong>
+                    </td>
+                    <td style="padding:10px;">
+                        {{ b.event_date.strftime('%d %b %Y') }}
+                    </td>
+                    <td style="padding:10px;">
+                        ₹{{ "{:,.0f}".format(b.total_price) }}
+                    </td>
+                    <td style="padding:10px;">
+                        {{ b.status|title }}
+                    </td>
+                    <td style="padding:10px;">
+                        {% if b.status == 'pending' %}
+                            <a href="{{ url_for('update_booking', booking_id=b.id, action='confirm') }}">
+                                <button style="padding:6px 14px; background:#0FB9B1; border:none; color:white; margin-right:5px;">
+                                    ✓ Confirm
+                                </button>
+                            </a>
+                            <a href="{{ url_for('update_booking', booking_id=b.id, action='cancel') }}"
+                               onclick="return confirm('Cancel this booking?')">
+                                <button style="padding:6px 14px; background:#FC5C65; border:none; color:white;">
+                                    ✕ Cancel
+                                </button>
+                            </a>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="background:white; padding:20px; border-radius:10px;">
+        <h4>No bookings yet.</h4>
+        <p>Complete your profile so customers can find and book you.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endif %}
+
+{% endblock %}

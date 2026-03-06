@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Browse Vendors – Event Planner{% endblock %}
+{% block content %}
+
+<div class="page-header" style="margin-bottom:15px;">
+    <h2>Explore Premium Vendors</h2>
+</div>
+
+<form method="GET" class="filter-bar" style="margin:0 0 20px;">
+    <select name="category">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+    </select>
+    <select name="location">
+        <option value="">All Locations</option>
+        {% for loc in locations %}
+        <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-teal" style="width:auto;padding:9px 20px;">Filter</button>
+    <a href="{{ url_for('vendors') }}" class="btn btn-outline" style="width:auto;padding:9px 20px;">Clear</a>
+</form>
+
+<div class="card-container" style="padding:0;">
+    {% for v in vendors %}
+    <div class="card">
+        <div class="vendor-card-header">
+            <h3>{{ v.vendor_name }}</h3>
+            <span class="rating">⭐ {{ v.rating }}</span>
+        </div>
+        <p class="vendor-meta">{{ v.category }} &nbsp;|&nbsp; 📍 {{ v.location }}</p>
+        <p class="vendor-desc">{{ v.description[:100] }}{% if v.description|length > 100 %}...{% endif %}</p>
+        <div class="vendor-card-footer">
+            <span class="price">₹{{ '{:,.0f}'.format(v.price) }}</span>
+            <a href="{{ url_for('book_vendor', vendor_id=v.id) }}" class="btn btn-sm">Book Now</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state" style="grid-column:1/-1;">
+        <p>No vendors found. Try adjusting your filters.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

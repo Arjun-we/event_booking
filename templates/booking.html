@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Book {{ vendor.vendor_name }} | Event Planner{% endblock %}
+{% block content %}
+
+<form method="POST" style="max-width:500px;">
+    <h2>📅 Book Vendor</h2>
+
+    <div class="vendor-summary-box">
+        <h3>{{ vendor.vendor_name }}</h3>
+        <p>📂 {{ vendor.category }} &nbsp;|&nbsp; 📍 {{ vendor.location }}</p>
+        <p>{{ vendor.description }}</p>
+        <p class="price-highlight">₹{{ "{:,.0f}".format(vendor.price) }} per event</p>
+    </div>
+
+    <div class="form-group">
+        <label>Select Event Date</label>
+        <input type="date" name="event_date" required min="{{ today }}">
+    </div>
+
+    <p style="color:#666; font-size:0.9rem; margin-top:-5px;">
+        Total Amount: <strong style="color:#FC5C65;">₹{{ "{:,.0f}".format(vendor.price) }}</strong>
+    </p>
+
+    <button type="submit" style="background:#0FB9B1; margin-top:10px;">
+        Confirm Booking
+    </button>
+
+    <a href="{{ url_for('vendors') }}" style="display:block; text-align:center; margin-top:15px; color:#888; font-size:0.9rem;">
+        ← Back to vendors
+    </a>
+</form>
+
+{% endblock %}

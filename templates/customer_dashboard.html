@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – Event Planner{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h2>Welcome, {{ session.name }}! 👋</h2>
+    <a href="{{ url_for('vendors') }}" class="btn" style="width:auto;padding:10px 22px;">Browse Vendors</a>
+</div>
+
+<div class="stats-grid" style="padding:0 0 20px;">
+    <div class="stat-card">
+        <h3>{{ total }}</h3>
+        <p>Total Bookings</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ recent|selectattr('status','equalto','confirmed')|list|length }}</h3>
+        <p>Confirmed</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ recent|selectattr('status','equalto','pending')|list|length }}</h3>
+        <p>Pending</p>
+    </div>
+</div>
+
+<h3 class="section-title">Recent Bookings</h3>
+{% if recent %}
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr>
+            <th>Vendor</th>
+            <th>Category</th>
+            <th>Event Date</th>
+            <th>Status</th>
+            <th>Price (₹)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in recent %}
+        <tr>
+            <td>{{ b.vendor.vendor_name }}</td>
+            <td>{{ b.vendor.category }}</td>
+            <td>{{ b.event_date.strftime('%d %b %Y') }}</td>
+            <td><span class="badge badge-{{ b.status }}">{{ b.status|title }}</span></td>
+            <td>₹{{ '{:,.0f}'.format(b.total_price) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+<p style="margin-top:15px;"><a href="{{ url_for('booking_history') }}" style="color:#0FB9B1;font-weight:600;">View all bookings →</a></p>
+{% else %}
+<div class="empty-state">
+    <p>No bookings yet. <a href="{{ url_for('vendors') }}">Find a vendor</a> to get started!</p>
+</div>
+{% endif %}
+
+{% endblock %}

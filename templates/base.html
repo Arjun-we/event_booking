@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Event Planner{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <h1>🎉 Event Planner</h1>
+    <nav>
+        {% if session.user_id %}
+            <span class="nav-user">Hi, {{ session.name }}</span>
+            {% if session.role == 'customer' %}
+                <a href="{{ url_for('customer_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('vendors') }}">Browse Vendors</a>
+                <a href="{{ url_for('booking_history') }}">My Bookings</a>
+            {% else %}
+                <a href="{{ url_for('vendor_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('vendor_profile_edit') }}">Edit Profile</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('role_select') }}">Login</a>
+            <a href="{{ url_for('role_select') }}">Sign Up</a>
+        {% endif %}
+    </nav>
+</header>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</div>
+
+<footer>© 2026 Event Planner — All rights reserved.</footer>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

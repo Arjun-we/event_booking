@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Leave Review | Event Planner{% endblock %}
+{% block content %}
+
+<form method="POST">
+    <h2>✍ Leave a Review</h2>
+
+    <div class="vendor-summary-box">
+        <strong>{{ booking.vendor.vendor_name }}</strong>
+        <p style="color:#666; margin:5px 0 0;">{{ booking.vendor.category }} — Event on {{ booking.event_date.strftime('%d %b %Y') }}</p>
+    </div>
+
+    <div class="form-group" style="margin-top:20px;">
+        <label>Your Rating</label>
+        <select name="rating" required>
+            <option value="">Select rating</option>
+            <option value="5">⭐⭐⭐⭐⭐ Excellent (5/5)</option>
+            <option value="4">⭐⭐⭐⭐ Good (4/5)</option>
+            <option value="3">⭐⭐⭐ Average (3/5)</option>
+            <option value="2">⭐⭐ Below Average (2/5)</option>
+            <option value="1">⭐ Poor (1/5)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Your Experience</label>
+        <textarea name="comment" rows="4" placeholder="Tell others about your experience..."></textarea>
+    </div>
+
+    <button type="submit" style="background:#0FB9B1;">Submit Review</button>
+
+    <a href="{{ url_for('booking_history') }}" style="display:block; text-align:center; margin-top:15px; color:#888; font-size:0.9rem;">
+        ← Back to bookings
+    </a>
+</form>
+
+{% endblock %}

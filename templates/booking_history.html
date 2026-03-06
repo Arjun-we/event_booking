@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}My Bookings | Event Planner{% endblock %}
+{% block content %}
+
+<div style="padding:30px 40px 0; display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="color:#0FB9B1;">📋 My Bookings</h2>
+    <a href="{{ url_for('vendors') }}">
+        <button style="width:auto; padding:10px 25px; background:#0FB9B1;">+ Book New Vendor</button>
+    </a>
+</div>
+
+<div style="padding:20px 40px;">
+{% if bookings %}
+<div class="table-wrap">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Vendor</th>
+                <th>Category</th>
+                <th>Event Date</th>
+                <th>Status</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in bookings %}
+            <tr>
+                <td><strong>{{ b.vendor.vendor_name }}</strong></td>
+                <td>{{ b.vendor.category }}</td>
+                <td>{{ b.event_date.strftime('%d %b %Y') }}</td>
+                <td>
+                    <span class="status-badge status-{{ b.status }}">
+                        {{ b.status|title }}
+                    </span>
+                </td>
+                <td>₹{{ "{:,.0f}".format(b.total_price) }}</td>
+                <td>
+                    {% if b.status == 'confirmed' and not b.review %}
+                        <a href="{{ url_for('leave_review', booking_id=b.id) }}">
+                            <button style="width:auto; padding:6px 15px; font-size:0.8rem; background:#0FB9B1; margin:0;">
+                                ✍ Review
+                            </button>
+                        </a>
+                    {% elif b.review %}
+                        <span style="color:#0FB9B1; font-size:0.85rem;">⭐ {{ b.review.rating }}/5 Reviewed</span>
+                    {% else %}
+                        <span style="color:#bbb; font-size:0.8rem;">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <h3>No bookings yet!</h3>
+    <p>Browse vendors and make your first booking.</p>
+    <a href="{{ url_for('vendors') }}">
+        <button style="width:auto; padding:12px 30px; background:#0FB9B1; margin-top:15px;">
+            Browse Vendors
+        </button>
+    </a>
+</div>
+{% endif %}
+</div>
+
+{% endblock %}
