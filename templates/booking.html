@@ -2,7 +2,7 @@
 {% block title %}Book {{ vendor.vendor_name }} | Event Planner{% endblock %}
 {% block content %}
 
-<form method="POST" style="max-width:500px;">
+<form id="bookingForm" method="POST" style="max-width:500px;">
     <h2>📅 Book Vendor</h2>
 
     <div class="vendor-summary-box">
@@ -21,13 +21,52 @@
         Total Amount: <strong style="color:#FC5C65;">₹{{ "{:,.0f}".format(vendor.price) }}</strong>
     </p>
 
-    <button type="submit" style="background:#0FB9B1; margin-top:10px;">
+    <button type="submit" id="confirmBtn" style="background:#0FB9B1; margin-top:10px; cursor:pointer;">
         Confirm Booking
     </button>
 
-    <a href="{{ url_for('vendors') }}" style="display:block; text-align:center; margin-top:15px; color:#888; font-size:0.9rem;">
+    <a href="{{ url_for('vendors') }}"
+        style="display:block; text-align:center; margin-top:15px; color:#888; font-size:0.9rem;">
         ← Back to vendors
     </a>
 </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('bookingForm');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const vendorName = '{{ vendor.vendor_name }}';
+                const vendorEmail = '{{ vendor.user.email }}';
+                const customerEmail = '{{ session.get("email", "") }}';
+                const customerName = '{{ session.get("name", "") }}';
+
+                console.log('📝 Booking form submitted');
+                console.log('Vendor:', vendorName, vendorEmail);
+                console.log('Customer:', customerName, customerEmail);
+
+                // If emails are missing, just submit the form
+                if (!vendorEmail || !customerEmail) {
+                    console.warn('⚠️ Missing emails, submitting form without email');
+                    form.submit();
+                    return;
+                }
+
+                // Send email first
+                sendCustomerConfirmEmail(customerEmail, customerName, vendorEmail, vendorName)
+                    .then(() => {
+                        console.log('✅ Email sent, submitting form...');
+                        setTimeout(() => form.submit(), 800);
+                    })
+                    .catch((error) => {
+                        console.error('❌ Email error:', error);
+                        setTimeout(() => form.submit(), 500);
+                    });
+            });
+        }
+    });
+</script>
 
 {% endblock %}

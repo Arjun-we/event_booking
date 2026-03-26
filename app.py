@@ -65,6 +65,7 @@ def signup(role):
         session['user_id'] = user.id
         session['role'] = user.role
         session['name'] = user.name
+        session['email'] = user.email
 
         if role == 'vendor':
             flash('Account created! Please complete your vendor profile.', 'success')
@@ -88,6 +89,7 @@ def login(role):
             session['user_id'] = user.id
             session['role'] = user.role
             session['name'] = user.name
+            session['email'] = user.email
             flash(f'Welcome back, {user.name}!', 'success')
             return redirect(url_for('customer_dashboard') if role == 'customer' else url_for('vendor_dashboard'))
 

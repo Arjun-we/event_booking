@@ -41,6 +41,26 @@
 </div>
 
 <footer>© 2026 Event Planner — All rights reserved.</footer>
+
+<!-- EmailJS Library (v4 official CDN) -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="text/javascript">
+    // Initialize EmailJS
+    (function() {
+        function initEmailJS() {
+            if (typeof emailjs !== 'undefined') {
+                emailjs.init({ publicKey: 'SJaz1Yu4T07MwzG-Y' });
+                console.log('✅ EmailJS initialized');
+            } else {
+                // Library not yet ready — retry
+                setTimeout(initEmailJS, 500);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', initEmailJS);
+    })();
+</script>
+
+<!-- Main Scripts -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

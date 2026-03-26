@@ -86,14 +86,13 @@
                     </td>
                     <td style="padding:10px;">
                         {% if b.status == 'pending' %}
-                            <a href="{{ url_for('update_booking', booking_id=b.id, action='confirm') }}">
-                                <button style="padding:6px 14px; background:#0FB9B1; border:none; color:white; margin-right:5px;">
-                                    ✓ Confirm
-                                </button>
-                            </a>
+                            <button type="button" style="padding:6px 14px; background:#0FB9B1; border:none; color:white; margin-right:5px; cursor:pointer;"
+                                    onclick="confirmVendorBooking(event, '{{ url_for('update_booking', booking_id=b.id, action='confirm') }}', '{{ session.get('name', '') }}', '{{ session.get('email', '') }}', '{{ b.customer.email if b.customer else '' }}', '{{ b.customer.name if b.customer else 'Customer' }}')">
+                                ✓ Confirm
+                            </button>
                             <a href="{{ url_for('update_booking', booking_id=b.id, action='cancel') }}"
                                onclick="return confirm('Cancel this booking?')">
-                                <button style="padding:6px 14px; background:#FC5C65; border:none; color:white;">
+                                <button type="button" style="padding:6px 14px; background:#FC5C65; border:none; color:white;">
                                     ✕ Cancel
                                 </button>
                             </a>
