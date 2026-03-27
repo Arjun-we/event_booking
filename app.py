@@ -167,6 +167,13 @@ def booking_history():
     bookings = Booking.query.filter_by(customer_id=session['user_id']).order_by(Booking.created_at.desc()).all()
     return render_template('booking_history.html', bookings=bookings)
 
+@app.route('/chatbot')
+@login_required
+@role_required('customer')
+def chatbot():
+    return render_template('chatbot.html')
+
+
 @app.route('/review/<int:booking_id>', methods=['GET', 'POST'])
 @login_required
 @role_required('customer')

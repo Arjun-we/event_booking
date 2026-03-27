@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Chatbot Assistance - Event Planner{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🤖 Event Design Chatbot</h2>
+    <a href="{{ url_for('customer_dashboard') }}" class="btn btn-outline" style="padding: 8px 16px;">Back to Dashboard</a>
+</div>
+
+<div class="chatbot-container" style="max-width: 800px; margin: 0 auto; background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; height: 60vh; min-height: 500px;">
+    <div style="background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; font-size: 1.5rem; color: white;">Event Assistant</h2>
+        <p style="margin: 5px 0 0; opacity: 0.9; font-size: 0.9rem;">Ask me about decorations, themes, or event planning!</p>
+    </div>
+    
+    <div id="chat-box" style="flex: 1; padding: 25px; overflow-y: auto; background: var(--bg); display: flex; flex-direction: column; gap: 18px;">
+        <!-- Initial Message -->
+        <div style="display: flex; gap: 12px; align-items: flex-end;">
+            <div style="background: white; padding: 14px 18px; border-radius: 18px 18px 18px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.04); max-width: 80%; border: 1px solid var(--border); font-size: 0.95rem;">
+                <strong>Event Assistant</strong><br>
+                Hello {{ session.name }}! I'm your virtual planner. I can help you decide on the perfect theme and decorations for your event. What kind of vibe are you going for? (e.g., vintage, modern, romantic)
+            </div>
+        </div>
+    </div>
+    
+    <div style="padding: 18px 25px; background: white; border-top: 1px solid var(--border); display: flex; gap: 12px; align-items: center;">
+        <input type="text" id="chat-input" placeholder="Type your message here..." style="flex: 1; border-radius: 25px; padding: 14px 22px; margin: 0; border: 1px solid var(--border); outline: none;" onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()" class="btn btn-teal" style="border-radius: 25px; padding: 12px 28px; font-size: 1rem; margin: 0;">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const chatInput = document.getElementById('chat-input');
+    
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.style.display = 'flex';
+        messageDiv.style.gap = '12px';
+        messageDiv.style.alignItems = 'flex-end';
+        
+        let bubbleStyle = `padding: 14px 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); max-width: 80%; border: 1px solid var(--border); font-size: 0.95rem;`;
+        let contentHtml = '';
+        
+        if (sender === 'user') {
+            messageDiv.style.justifyContent = 'flex-end';
+            bubbleStyle += ` background: var(--teal); color: white; border-radius: 18px 18px 0 18px; border-color: var(--teal);`;
+            contentHtml = `<div style="${bubbleStyle}">${text}</div>`;
+        } else {
+            messageDiv.style.justifyContent = 'flex-start';
+            bubbleStyle += ` background: white; color: var(--text); border-radius: 18px 18px 18px 0;`;
+            contentHtml = `<div style="${bubbleStyle}"><strong>Event Assistant</strong><br>${text}</div>`;
+        }
+        
+        messageDiv.innerHTML = contentHtml;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    }
+    
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        
+        appendMessage('user', text);
+        chatInput.value = '';
+        
+        const typingIndicator = document.createElement('div');
+        typingIndicator.id = 'typing';
+        typingIndicator.innerHTML = '<div style="padding: 14px 18px; background: white; border-radius: 18px 18px 18px 0; max-width: 80%; border: 1px solid var(--border); font-size: 0.95rem; font-style: italic; color: var(--muted);">Typing...</div>';
+        typingIndicator.style.display = 'flex';
+        typingIndicator.style.justifyContent = 'flex-start';
+        chatBox.appendChild(typingIndicator);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        setTimeout(() => {
+            chatBox.removeChild(typingIndicator);
+            getBotResponse(text);
+        }, 1200);
+    }
+    
+    function getBotResponse(text) {
+        const lower = text.toLowerCase();
+        let reply = "That's an interesting thought! Could you tell me more about what you're imagining? (Try asking about themes like 'vintage' or 'modern', or ideas for 'lighting' and 'flowers'.)";
+        
+        if (lower.includes('theme') || lower.includes('themes')) {
+            reply = "We have several popular themes! A 'Vintage Charm' theme uses rustic wood and fairy lights, while 'Modern Elegance' focuses on sleek lines and metallic accents. Do either of those sound appealing?";
+        } else if (lower.includes('decor') || lower.includes('decoration')) {
+            reply = "For decorations, we highly recommend focusing on floral arrangements and strategic lighting. Together, they instantly set the mood. Our 'Bloom & Glow' vendor does amazing work with both!";
+        } else if (lower.includes('flower') || lower.includes('floral')) {
+            reply = "Flowers define your theme! Roses and peonies are great for romantic events, while orchids or tropical greenery give an exotic, luxurious feel.";
+        } else if (lower.includes('light') || lower.includes('lighting')) {
+            reply = "Lighting completely transforms a venue. Consider amber up-lighting for a warm, cozy feel, or a starry-night ceiling projection for a magical vibe.";
+        } else if (lower.includes('vintage') || lower.includes('rustic')) {
+            reply = "Vintage/Rustic themes are beautiful! I recommend using antique centerpieces, warm Edison bulb lighting, and pastel floral arrangements. Should we look for vendors who do this?";
+        } else if (lower.includes('modern') || lower.includes('elegant')) {
+            reply = "For a modern theme, think minimalism: clean geometric shapes, ghost chairs, and a striking monochromatic styling. It looks extremely classy!";
+        } else if (lower.includes('price') || lower.includes('cost') || lower.includes('budget')) {
+            reply = "Prices vary by vendor. You can check the 'Browse Vendors' page from your dashboard to see detailed pricing. Is there a specific vendor category (like Catering or Decor) you want to prioritize?";
+        } else if (lower.includes('help')) {
+            reply = "I'm here to help you decide on your event design! You can ask me about themes, decoration ideas, or specific elements like flowers and lighting.";
+        } else if (lower.includes('hello') || lower.includes('hi')) {
+            reply = "Hello there! How can I assist you in planning your dream event today?";
+        } else if (lower.includes('thank')) {
+            reply = "You're very welcome! Let me know if you need more inspiration or help. Good luck with the planning!";
+        } else if (lower.includes('vendor')) {
+            reply = "You can browse all our wonderful vendors by clicking 'Browse Vendors' in your navigation menu. Let me know if you need help deciding what type of vendor you need!";
+        }
+        
+        appendMessage('bot', reply);
+    }
+</script>
+{% endblock %}
