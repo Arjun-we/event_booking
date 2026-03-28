@@ -2,11 +2,11 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --teal: #0FB9B1;
+    --teal:#2980b9 100%;
     --teal-dark: #0a9e97;
-    --red: #FC5C65;
+    --red: #64d0f1;
     --red-dark: #e04850;
-    --bg: #F1FDFB;
+    --bg: linear-gradient(to left,#2980b9 0%,#6dd5fa 50%,#ffffff 100%);
     --card-bg: #ffffff;
     --text: #2d3748;
     --muted: #6c757d;
@@ -16,7 +16,7 @@
     --success: #28a745;
     --danger: #dc3545;
     --warning: #ffc107;
-    --info: #17a2b8;
+    --info:linear-gradient(to left,#2980b9 0%,#6dd5fa 50%,#ffffff 100%);
 }
 
 body {
@@ -137,7 +137,7 @@ input:focus, textarea:focus, select:focus {
 .hero {
     padding: 80px 20px;
     text-align: center;
-    background: linear-gradient(135deg, var(--teal), var(--red));
+    background:rgb(113, 190, 231);
     color: white;
 }
 .hero h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }

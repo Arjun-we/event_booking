@@ -30,7 +30,7 @@
             <h3>{{ v.vendor_name }}</h3>
             <span class="rating">⭐ {{ v.rating }}</span>
         </div>
-        <p class="vendor-meta">{{ v.category }} &nbsp;|&nbsp; 📍 {{ v.location }}</p>
+        <p class="vendor-meta">{{ v.category }} &nbsp;|&nbsp;  {{ v.location }}</p>
         <p class="vendor-desc">{{ v.description[:100] }}{% if v.description|length > 100 %}...{% endif %}</p>
         <div class="vendor-card-footer">
             <span class="price">₹{{ '{:,.0f}'.format(v.price) }}</span>

@@ -6,10 +6,10 @@
     <title>{% block title %}Event Planner{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 
 <header>
-    <h1>🎉 Event Planner</h1>
+    <h1> Event Planner</h1>
     <nav>
         {% if session.user_id %}
             <span class="nav-user">Hi, {{ session.name }}</span>

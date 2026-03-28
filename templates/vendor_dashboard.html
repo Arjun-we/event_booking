@@ -4,7 +4,7 @@
 
 <div style="padding:30px 40px 0; display:flex; justify-content:space-between; align-items:center;">
     <div>
-        <h2 style="color:#FC5C65;">🏪 Vendor Management Portal</h2>
+        <h2 style="color:#FC5C65;"> Vendor Management Portal</h2>
         <p style="color:#666;">Welcome, {{ session.get('name', 'Vendor') }}</p>
     </div>
     <a href="{{ url_for('vendor_profile_edit') }}">
@@ -44,7 +44,7 @@
 
 <!-- Profile Summary -->
 <div style="margin:0 40px 20px; background:white; border-radius:12px; padding:20px;">
-    <h3 style="color:#0FB9B1; margin-bottom:10px;">📋 Profile Overview</h3>
+    <h3 style="color:#0FB9B1; margin-bottom:10px;"> Profile Overview</h3>
     <p>
         <strong>Category:</strong> {{ vendor.category }} |
         <strong>Location:</strong> {{ vendor.location }} |
@@ -55,7 +55,7 @@
 
 <!-- Bookings Table -->
 <div style="padding:0 40px 40px;">
-    <h3 style="color:#FC5C65; margin-bottom:15px;">📅 Incoming Bookings</h3>
+    <h3 style="color:#FC5C65; margin-bottom:15px;">Incoming Bookings</h3>
 
     {% if bookings %}
     <div style="overflow-x:auto;">

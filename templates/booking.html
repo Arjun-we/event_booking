@@ -7,7 +7,7 @@
 
     <div class="vendor-summary-box">
         <h3>{{ vendor.vendor_name }}</h3>
-        <p>📂 {{ vendor.category }} &nbsp;|&nbsp; 📍 {{ vendor.location }}</p>
+        <p> {{ vendor.category }} &nbsp;|&nbsp;  {{ vendor.location }}</p>
         <p>{{ vendor.description }}</p>
         <p class="price-highlight">₹{{ "{:,.0f}".format(vendor.price) }} per event</p>
     </div>
