@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Chatbot Assistance - Event Planner{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🤖 Event Design Chatbot</h2>
+    <a href="{{ url_for('customer_dashboard') }}" class="btn btn-outline" style="padding: 8px 16px;">Back to Dashboard</a>
+</div>
+
+<div class="chatbot-container" style="max-width: 800px; margin: 0 auto; background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; height: 60vh; min-height: 500px;">
+    <div style="background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; padding: 20px; text-align: center;">
+        <h2 style="margin: 0; font-size: 1.5rem; color: white;">Event Assistant</h2>
+        <p style="margin: 5px 0 0; opacity: 0.9; font-size: 0.9rem;">Ask me about decorations, themes, or event planning!</p>
+    </div>
+    
+    <div id="chat-box" style="flex: 1; padding: 25px; overflow-y: auto; background: var(--bg); display: flex; flex-direction: column; gap: 18px;">
+        <!-- Initial Message -->
+        <div style="display: flex; gap: 12px; align-items: flex-end;">
+            <div style="background: white; padding: 14px 18px; border-radius: 18px 18px 18px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.04); max-width: 80%; border: 1px solid var(--border); font-size: 0.95rem;">
+                <strong>Event Assistant</strong><br>
+                Hello {{ session.name }}! I'm your virtual planner. I can help you decide on the perfect theme and decorations for your event. What kind of vibe are you going for? (e.g., vintage, modern, romantic)
+            </div>
+        </div>
+    </div>
+    
+    <div style="padding: 18px 25px; background: white; border-top: 1px solid var(--border); display: flex; gap: 12px; align-items: center;">
+        <input type="text" id="chat-input" placeholder="Type your message here..." style="flex: 1; border-radius: 25px; padding: 14px 22px; margin: 0; border: 1px solid var(--border); outline: none;" onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()" class="btn btn-teal" style="border-radius: 25px; padding: 12px 28px; font-size: 1rem; margin: 0;">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const chatInput = document.getElementById('chat-input');
+    
+    function appendMessage(sender, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.style.display = 'flex';
+        messageDiv.style.gap = '12px';
+        messageDiv.style.alignItems = 'flex-end';
+        
+        let bubbleStyle = `padding: 14px 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); max-width: 80%; border: 1px solid var(--border); font-size: 0.95rem;`;
+        let contentHtml = '';
+        
+        if (sender === 'user') {
+            messageDiv.style.justifyContent = 'flex-end';
+            bubbleStyle += ` background: var(--teal); color: white; border-radius: 18px 18px 0 18px; border-color: var(--teal);`;
+            contentHtml = `<div style="${bubbleStyle}">${text}</div>`;
+        } else {
+            messageDiv.style.justifyContent = 'flex-start';
+            bubbleStyle += ` background: white; color: var(--text); border-radius: 18px 18px 18px 0;`;
+            contentHtml = `<div style="${bubbleStyle}"><strong>Event Assistant</strong><br>${text}</div>`;
+        }
+        
+        messageDiv.innerHTML = contentHtml;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    }
+    
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        
+        appendMessage('user', text);
+        chatInput.value = '';
+        
+        const typingIndicator = document.createElement('div');
+        typingIndicator.id = 'typing';
+        typingIndicator.innerHTML = '<div style="padding: 14px 18px; background: white; border-radius: 18px 18px 18px 0; max-width: 80%; border: 1px solid var(--border); font-size: 0.95rem; font-style: italic; color: var(--muted);">Typing...</div>';
+        typingIndicator.style.display = 'flex';
+        typingIndicator.style.justifyContent = 'flex-start';
+        chatBox.appendChild(typingIndicator);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        getBotResponse(text, typingIndicator);
+    }
+    
+    async function getBotResponse(text, typingIndicator) {
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await response.json();
+            chatBox.removeChild(typingIndicator);
+            if (data.reply) {
+                appendMessage('bot', data.reply);
+            } else {
+                appendMessage('bot', "I'm sorry, I couldn't understand that.");
+            }
+        } catch (error) {
+            console.error('Error fetching chat response:', error);
+            chatBox.removeChild(typingIndicator);
+            appendMessage('bot', "There was an error connecting to the server. Please check your connection.");
+        }
+    }
+</script>
+{% endblock %}

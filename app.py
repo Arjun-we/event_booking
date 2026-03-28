@@ -1,8 +1,13 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
+import os
 from config import Config
-from models import db, User, Vendor, Booking, Review
+from models import db, User, Vendor, Booking, Review, Message
 from datetime import datetime, date
 from functools import wraps
+from dotenv import load_dotenv
+
+load_dotenv()
+import google.generativeai as genai
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -29,6 +34,21 @@ def role_required(role):
             return f(*args, **kwargs)
         return decorated
     return decorator
+
+@app.context_processor
+def inject_unread_counts():
+    if 'user_id' in session:
+        from sqlalchemy import func
+        unread_counts = {}
+        total_unread = 0
+        unreads = db.session.query(Message.sender_id, func.count(Message.id))\
+                    .filter_by(receiver_id=session['user_id'], is_read=False)\
+                    .group_by(Message.sender_id).all()
+        for sender, count in unreads:
+            unread_counts[sender] = count
+            total_unread += count
+        return {'unread_counts': unread_counts, 'total_unread': total_unread}
+    return {}
 
 # ─── Public Routes ────────────────────────────────────────────────────────────
 
@@ -65,6 +85,7 @@ def signup(role):
         session['user_id'] = user.id
         session['role'] = user.role
         session['name'] = user.name
+        session['email'] = user.email
 
         if role == 'vendor':
             flash('Account created! Please complete your vendor profile.', 'success')
@@ -88,6 +109,7 @@ def login(role):
             session['user_id'] = user.id
             session['role'] = user.role
             session['name'] = user.name
+            session['email'] = user.email
             flash(f'Welcome back, {user.name}!', 'success')
             return redirect(url_for('customer_dashboard') if role == 'customer' else url_for('vendor_dashboard'))
 
@@ -164,6 +186,61 @@ def book_vendor(vendor_id):
 def booking_history():
     bookings = Booking.query.filter_by(customer_id=session['user_id']).order_by(Booking.created_at.desc()).all()
     return render_template('booking_history.html', bookings=bookings)
+
+@app.route('/api/chat', methods=['POST'])
+@login_required
+@role_required('customer')
+def api_chat():
+    user_message = request.json.get('message', '')
+    if not user_message:
+        return jsonify({"reply": "Please ask a question!"})
+
+    # Optional: We construct some vendor info from the DB to help the AI answer DB-related questions
+    vendors = Vendor.query.all()
+    vendor_context = "Available Vendors in our DB:\n"
+    for v in vendors:
+        vendor_context += f"- Vendor: {v.vendor_name}, Category: {v.category}, Location: {v.location}, Price: ₹{v.price}, Rating: {v.rating}/5.0\n"
+
+    try:
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            return jsonify({"reply": "I'm sorry, I cannot generate ideas right now because GEMINI_API_KEY is not configured."})
+        
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        prompt = f"""You are a helpful event planning assistant for the Event Booking platform.
+If the user's question relates to vendors, pricing, or bookings (e.g., "suggest some lowcost decoration vendor", "suggest some vendor who is in my hometown"), use the following vendor information to suggest matching options.
+{vendor_context}
+
+IMPORTANT RULES FOR VENDORS:
+1. If the user mentions their "native", "hometown", or a specific location (e.g., "saravanampatti is my native"), extract that location.
+2. Search the provided vendor list for that location. If you find matches, suggest them.
+3. If there are NO vendors matching their exact location in the list, politely inform them that we currently don't have vendors in that specific area, and optionally suggest vendors from other locations.
+4. DO NOT make up or hallucinate vendors that are not explicitly listed in the 'Available Vendors in our DB' section above.
+
+If the user asks a general question like "suggest some decoration idea", provide a generated, creative, and thoughtful answer rather than a generic default. Do not say "For decorations, we highly recommend focusing on floral arrangements" unless it actually fits the prompt naturally. Feel free to come up with completely unique themes or decoration ideas.
+
+The response should be polite, friendly, and concise. 
+IMPORTANT FORMATTING RULES:
+- Format your response using HTML tags for readability (e.g. <br>, <b> for bold, <i> for italics, <ul><li> for lists).
+- Do NOT use markdown like ** or * or #.
+- Start directly with the answer, no <p> tags enclosing the entire thing if not needed.
+
+User's query: "{user_message}"
+"""
+        response = model.generate_content(prompt)
+        return jsonify({"reply": response.text})
+    except Exception as e:
+        print("Error with Gemini AI:", e)
+        # Fallback if Gemini fails or is not configured
+        return jsonify({"reply": "I'm sorry, my AI features are currently unavailable. Please try checking the 'Browse Vendors' page from your dashboard!"})
+
+@app.route('/chatbot')
+@login_required
+@role_required('customer')
+def chatbot():
+    return render_template('chatbot.html')
+
 
 @app.route('/review/<int:booking_id>', methods=['GET', 'POST'])
 @login_required
@@ -252,6 +329,66 @@ def update_booking(booking_id, action):
         flash('Booking cancelled.', 'info')
     db.session.commit()
     return redirect(url_for('vendor_dashboard'))
+
+# ─── Messaging Routes ─────────────────────────────────────────────────────────
+
+@app.route('/chat/<int:receiver_id>', methods=['GET', 'POST'])
+@login_required
+def chat(receiver_id):
+    receiver = User.query.get_or_404(receiver_id)
+    sender_id = session['user_id']
+    
+    if request.method == 'POST':
+        content = request.form.get('content', '').strip()
+        if content:
+            msg = Message(sender_id=sender_id, receiver_id=receiver_id, content=content)
+            db.session.add(msg)
+            db.session.commit()
+            return redirect(url_for('chat', receiver_id=receiver_id))
+    
+    # Get all messages between the current user and the receiver
+    messages = Message.query.filter(
+        db.or_(
+            db.and_(Message.sender_id == sender_id, Message.receiver_id == receiver_id),
+            db.and_(Message.sender_id == receiver_id, Message.receiver_id == sender_id)
+        )
+    ).order_by(Message.timestamp.asc()).all()
+    
+    # Mark incoming messages as read
+    unread_msgs = [m for m in messages if m.receiver_id == sender_id and not m.is_read]
+    if unread_msgs:
+        for m in unread_msgs:
+            m.is_read = True
+        db.session.commit()
+    
+    return render_template('chat.html', receiver=receiver, messages=messages)
+
+@app.route('/chat/delete/<int:msg_id>', methods=['POST'])
+@login_required
+def delete_message(msg_id):
+    msg = Message.query.get_or_404(msg_id)
+    if msg.sender_id == session['user_id']:
+        db.session.delete(msg)
+        db.session.commit()
+    return redirect(request.referrer or url_for('index'))
+
+@app.route('/vendor/messages')
+@login_required
+@role_required('vendor')
+def vendor_messages():
+    # Find all unique customers who have sent messages to this vendor, or this vendor sent to
+    vendor_id = session['user_id']
+    received_msgs = Message.query.filter_by(receiver_id=vendor_id).all()
+    sent_msgs = Message.query.filter_by(sender_id=vendor_id).all()
+    
+    user_ids = set([m.sender_id for m in received_msgs] + [m.receiver_id for m in sent_msgs])
+    if vendor_id in user_ids:
+        user_ids.remove(vendor_id)
+        
+    contacts = User.query.filter(User.id.in_(user_ids)).all() if user_ids else []
+    
+    return render_template('vendor_messages.html', contacts=contacts)
+
 
 # ─── Seed & Init ──────────────────────────────────────────────────────────────
 

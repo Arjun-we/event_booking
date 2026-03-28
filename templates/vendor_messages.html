@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Messages Inbox - Event Planner{% endblock %}
+{% block content %}
+<div class="page-header" style="padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <h2 style="color: var(--teal); margin: 0; display:flex; align-items:center; gap:10px;">
+        📥 Messages Inbox
+    </h2>
+    <a href="{{ url_for('vendor_dashboard') }}" class="btn btn-outline" style="padding: 8px 20px; border-radius: 25px; transition: all 0.3s; font-weight: 500;">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="inbox-container" style="max-width: 850px; margin: 20px auto 60px auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid var(--border);">
+    
+    <!-- Table Header (Visual Only) -->
+    <div style="background: #f8fafc; padding: 15px 25px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; color: #64748b; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+        <span>Customer Contact</span>
+        <span>Action</span>
+    </div>
+
+    {% if contacts|length == 0 %}
+        <div style="padding: 80px 20px; text-align: center; background: white;">
+            <div style="width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+                <i class="fas fa-envelope-open-text" style="font-size: 2rem; color: #cbd5e1;"></i>
+            </div>
+            <h3 style="margin-bottom: 10px; color: #334155;">No Messages Yet</h3>
+            <p style="color: #64748b; max-width: 400px; margin: 0 auto;">When customers send you messages regarding their bookings or inquiries, they will appear here.</p>
+        </div>
+    {% else %}
+        <ul style="list-style: none; padding: 0; margin: 0; background: white;">
+            {% for contact in contacts %}
+            <li style="border-bottom: 1px solid #f1f5f9; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                <a href="{{ url_for('chat', receiver_id=contact.id) }}" style="display: flex; align-items: center; justify-content: space-between; padding: 20px 25px; text-decoration: none; color: inherit;">
+                    
+                    <!-- Avatar & Info -->
+                    <div style="display: flex; align-items: center; gap: 18px;">
+                        <div style="width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), #00a884); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; box-shadow: 0 4px 10px rgba(15, 185, 177, 0.2);">
+                            {{ contact.name[0]|upper }}
+                        </div>
+                        
+                        <div>
+                            <h4 style="margin: 0 0 4px 0; font-size: 1.15rem; color: #1e293b; font-weight: 600;">{{ contact.name }}</h4>
+                            <p style="margin: 0; font-size: 0.9rem; color: #64748b; display: flex; align-items: center; gap: 5px;">
+                                <i class="fas fa-envelope" style="font-size: 0.8rem; opacity: 0.7;"></i> {{ contact.email }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Action Button & Unread Badge -->
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        {% if unread_counts and unread_counts.get(contact.id, 0) > 0 %}
+                        <span style="background: #fc5c65; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 8px rgba(252,92,101,0.3); display: flex; align-items: center; gap: 4px;">
+                            <span style="display:inline-block; width:6px; height:6px; background:white; border-radius:50%; margin-right:2px;"></span>
+                            {{ unread_counts[contact.id] }} New
+                        </span>
+                        {% endif %}
+                        
+                        <div style="padding: 10px 24px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; transition: all 0.2s; white-space: nowrap;">
+                            Open Chat &rarr;
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+{% endblock %}

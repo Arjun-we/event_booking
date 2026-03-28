@@ -38,14 +38,14 @@
                 <td>
                     {% if b.status == 'confirmed' and not b.review %}
                         <a href="{{ url_for('leave_review', booking_id=b.id) }}">
-                            <button style="width:auto; padding:6px 15px; font-size:0.8rem; background:#0FB9B1; margin:0;">
+                            <button style="width:auto; padding:6px 15px; font-size:0.8rem; background:#0FB9B1; margin:0; border:none; color:white; border-radius:4px; cursor:pointer;">
                                 ✍ Review
                             </button>
                         </a>
                     {% elif b.review %}
-                        <span style="color:#0FB9B1; font-size:0.85rem;">⭐ {{ b.review.rating }}/5 Reviewed</span>
+                        <span style="color:#0FB9B1; font-size:0.85rem; white-space:nowrap;">⭐ {{ b.review.rating }}/5 Reviewed</span>
                     {% else %}
-                        <span style="color:#bbb; font-size:0.8rem;">—</span>
+                        <span style="color:#bbb; font-size:0.8rem; text-align:center;">—</span>
                     {% endif %}
                 </td>
             </tr>
