@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat with {{ receiver.name }} - Event Planner{% endblock %}
+
+{% block content %}
+<div class="page-header" style="padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;">
+    <h2 style="color: var(--teal);">💬 Chat with {{ receiver.name }}</h2>
+    {% if session['role'] == 'vendor' %}
+        <a href="{{ url_for('vendor_messages') }}" class="btn btn-outline" style="padding: 8px 16px;">Back to Inbox</a>
+    {% else %}
+        <a href="{{ url_for('vendor_dashboard' if session.get('role') == 'vendor' else 'booking_history') }}" class="btn btn-outline" style="padding: 8px 16px;">Back to Bookings</a>
+    {% endif %}
+</div>
+
+<div class="chatbot-container" style="max-width: 800px; margin: 0 auto 40px auto; background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; height: 60vh; min-height: 500px;">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; padding: 20px; text-align: center; display:flex; flex-direction:column; align-items:center;">
+        <h2 style="margin: 0; font-size: 1.5rem; color: white;">{{ receiver.name }}</h2>
+        <p style="margin: 5px 0 0; opacity: 0.9; font-size: 0.9rem;">
+            {% if receiver.role == 'vendor' %}Vendor{% else %}Customer{% endif %}
+        </p>
+    </div>
+    
+    <!-- Chat Box -->
+    <div id="chatContainer" style="flex: 1; padding: 25px; overflow-y: auto; background: var(--bg); display: flex; flex-direction: column; gap: 18px;">
+        {% if not messages %}
+            <div style="text-align: center; margin-top: 30px; opacity: 0.7;">
+                <p>Welcome to the chat! Send a message below to start the conversation.</p>
+                <p style="font-size: 0.85rem; color: var(--muted);">Messages are secured and private.</p>
+            </div>
+        {% else %}
+            {% for msg in messages %}
+                {% if msg.sender_id == session['user_id'] %}
+                    <!-- Sender Bubble -->
+                    <div style="display: flex; gap: 12px; align-items: flex-end; justify-content: flex-end; margin-bottom: 2px;">
+                        <div class="sender-bubble" style="position:relative; padding: 14px 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); max-width: 80%; border: 1px solid var(--teal); font-size: 0.95rem; background: var(--teal); color: white; border-radius: 18px 18px 0 18px;" onclick="toggleDropdown('drop-{{msg.id}}', event)">
+                            <div style="word-wrap: break-word; line-height: 1.5; padding-right:10px;">{{ msg.content }}</div>
+                            <div style="text-align: right; font-size: 0.7rem; opacity: 0.8; margin-top: 5px; display:flex; justify-content:flex-end; align-items:center; gap:3px;">
+                                <span>{{ msg.timestamp.strftime('%I:%M %p') }}</span>
+                                {% if msg.is_read %}
+                                    <span style="margin-left:2px; font-weight:bold; color:#0d6efd;">✓✓</span>
+                                {% else %}
+                                    <span style="margin-left:2px; font-weight:bold;">✓</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Dropdown Arrow (Shown on hover via CSS) -->
+                            <div class="msg-toggle" style="position:absolute; top:6px; right:8px; display:none; color:rgba(255,255,255,0.9); cursor:pointer;">
+                                <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i>
+                            </div>
+
+                            <!-- Dropdown Menu -->
+                            <div id="drop-{{msg.id}}" class="msg-dropdown py-1" style="display:none; position:absolute; top:25px; right:5px; background:white; color:#333; border-radius:6px; box-shadow:0 4px 15px rgba(0,0,0,0.15); z-index:100; min-width:140px; border:1px solid #eee;">
+                                <form method="POST" action="{{ url_for('delete_message', msg_id=msg.id) }}" style="margin:0; padding:0;">
+                                    <button type="submit" style="width:100%; text-align:left; background:none; border:none; padding:10px 15px; cursor:pointer; font-size:0.9rem; color:#fc5c65; font-weight:bold;" onclick="return confirm('Delete this message for everyone?');">
+                                        Delete message
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Receiver Bubble -->
+                    <div style="display: flex; gap: 12px; align-items: flex-end; justify-content: flex-start;">
+                        <div style="padding: 14px 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); max-width: 80%; border: 1px solid var(--border); font-size: 0.95rem; background: white; color: var(--text); border-radius: 18px 18px 18px 0;">
+                            <div style="word-wrap: break-word; line-height: 1.5;">{{ msg.content }}</div>
+                            <div style="text-align: right; font-size: 0.7rem; color: var(--muted); margin-top: 5px;">
+                                {{ msg.timestamp.strftime('%I:%M %p') }}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <!-- Input Area (Matches Chatbot) -->
+    <div style="padding: 18px 25px; background: white; border-top: 1px solid var(--border); display: flex; align-items: center;">
+        <form method="POST" action="{{ url_for('chat', receiver_id=receiver.id) }}" style="display: flex; gap: 12px; align-items: center; width: 100%; margin: 0;">
+            <input type="text" name="content" placeholder="Type your message here..." required autocomplete="off" autofocus 
+                   style="flex: 1; border-radius: 25px; padding: 14px 22px; margin: 0; border: 1px solid var(--border); outline: none;">
+            <button type="submit" class="btn btn-teal" style="border-radius: 25px; padding: 12px 28px; font-size: 1rem; margin: 0; background: var(--teal); color: white; border: none; cursor:pointer;">
+                Send
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .sender-bubble { transition: background 0.2s; }
+    @media (hover: hover) {
+        .sender-bubble:hover .msg-toggle { display: block !important; }
+    }
+    /* Always show toggle for touch devices if possible, or script handles onclick */
+    .msg-dropdown button:hover { background-color: #f8f9fa !important; }
+</style>
+
+<script>
+    // Scroll to bottom immediately
+    window.onload = function() {
+        var chatContainer = document.getElementById("chatContainer");
+        if(chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    };
+
+    function toggleDropdown(id, event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById(id);
+        var isCurrentlyVisible = (dropdown.style.display === 'block');
+        
+        // Hide all dropdowns first
+        document.querySelectorAll('.msg-dropdown').forEach(function(el) {
+            el.style.display = 'none';
+        });
+        
+        // Toggle the clicked one
+        if (!isCurrentlyVisible) {
+            dropdown.style.display = 'block';
+        }
+    }
+
+    // Close any open dropdowns if user clicks anywhere else
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.msg-dropdown').forEach(function(el) {
+            el.style.display = 'none';
+        });
+    });
+</script>
+{% endblock %}
